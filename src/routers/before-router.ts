@@ -1,19 +1,18 @@
 import {
   BaseRouter,
+  KoaRouter,
   Get,
+  Post,
   Prefix,
   IContext,
   INext,
-  IMiddleware,
-  KoaRouter,
   Before,
   BeforeEach,
   BeforeEachWith,
 } from '../router'
-import { ErrorUnauthorized } from '../errors';
 
 
-@Prefix('/v1/router')
+@Prefix('/before')
 @BeforeEachWith(async (ctx: IContext, next: INext) => {
   ctx.order || (ctx.order = [])
   ctx.order.push(3)
@@ -26,11 +25,7 @@ import { ErrorUnauthorized } from '../errors';
   await next()
   ctx.order.push(10)
 })
-class RouteRouter extends BaseRouter {
-  constructor() {
-    super()
-  }
-
+class BeforeRouter extends BaseRouter {
   @BeforeEach()
   async beforeEach(ctx: IContext, next: INext) {
     ctx.order || (ctx.order = [])
@@ -61,31 +56,12 @@ class RouteRouter extends BaseRouter {
     ctx.order.push(7)
   })
   @Before('before')
-  @Get('/order')
-  order(ctx: IContext, next: INext) {
+  @Get('/')
+  root(ctx: IContext, next: INext) {
     ctx.order || (ctx.order = [])
     ctx.order.push(6)
-    ctx.body = ctx.order
-  }
-
-  @Before((ctx: IContext, next: INext) => {
-    if(ctx.params.name !== 'goodguy') {
-      throw new ErrorUnauthorized('Bad Guy!!')
-    }
-    next()
-  })
-  @Get('/user/:name')
-  goodguy(ctx: IContext, next: INext) {
-    ctx.body = 'Good Guy!!'
-  }
-
-  @Get('/:to/:path')
-  toPath(ctx: IContext, next: INext) {
-    ctx.body = {
-      to: ctx.params.to,
-      path: ctx.params.path,
-    }
+    ctx.body = {data: ctx.order}
   }
 }
 
-export default new RouteRouter().router
+export default new BeforeRouter().router

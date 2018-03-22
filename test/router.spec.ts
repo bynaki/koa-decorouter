@@ -1,11 +1,10 @@
 import test from 'ava'
 import app from '../src/app'
-import axios, { AxiosInstance, AxiosError } from 'axios'
+import axios, {AxiosError} from 'axios'
 import * as http from 'http'
 
-
 const server = http.createServer(app.callback())
-const req = axios.create({baseURL: 'http://localhost:8110/v1'})
+const req = axios.create({baseURL: 'http://localhost:8110'})
 
 test.before('start server', async t => {
   server.listen(8110)
@@ -15,31 +14,55 @@ test.after('end server', t => {
   server.close()
 })
 
+test('Get method', async t => {
+  try {
+    const res = await req.get('/method/get?say=Hello%20World!!')
+    t.deepEqual(res.data.data, {say: 'Hello World!!'})
+  } catch(err) {
+    t.fail(err.message)
+  }
+})
 
-test('router > must be ordered', async t => {
-  const res = await req.get('/router/order')
-  const data: number[] = res.data
+test('Post method', async t => {
+  try {
+    const res = await req.post('/method/post', {say: 'Hello World!!'})
+    t.deepEqual(res.data.data, {say: 'Hello World!!'})
+  } catch(err) {
+    t.fail(err.message)
+  }
+})
+
+test('Right params', async t => {
+  try {
+    const res = await req.get('/param/foo/bar')
+    t.deepEqual(res.data.data, {to: 'foo', path: 'bar'})
+  } catch(err) {
+    t.fail(err.message)
+  }
+})
+
+test('@Before, @BeforEach must be orderly', async t => {
+  const res = await req.get('/before')
+  const data: number[] = res.data.data
   t.true(data.length > 0)
   data.forEach((val, idx) => {
     t.is(val, idx)
   })
 })
 
-test('router > right params', async t => {
-  const res = await req.get('/router/foo/bar')
-  t.deepEqual(res.data, {to: 'foo', path: 'bar'})
-})
-
-test('router > the user is good guy', async t => {
-  const res = await req.get('/router/user/goodguy')
-  t.is(res.data, 'Good Guy!!')
-})
-
-test('router > Unauthorized Error', async t => {
+test('Authorized', async t => {
   try {
-    const res = await req.get('/router/user/badguy')
-  } catch(e) {
-    const err: AxiosError = e
-    t.is(err.response.data.errorMessage, 'Unauthorized: Bad Guy!!')
+    const res = await req.get('/auth', {headers: {
+      'x-access-token': 'naki'
+    }})
+    t.is(res.data.data, 'Authorized!!')
+  } catch(err) {
+    t.fail(err.message)
   }
+})
+
+test('Unauthorized', async t => {
+  const err: AxiosError = await t.throws(req.get('/auth'))
+  t.is(err.message, 'Request failed with status code 401')
+  t.is(err.response.data.error.message, 'Unauthorized')
 })

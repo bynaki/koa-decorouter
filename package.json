@@ -1,51 +1,47 @@
 {
-  "name": "ts-webapi.boilerplate",
-  "version": "0.1.0",
-  "description": "Typescript + Web API poilerpalte",
-  "main": "dist/server.js",
+  "name": "koa-decorouter",
+  "version": "0.1.5",
+  "description": "Koa Router Using Class and Docorator",
+  "main": "dist/router.js",
+  "types": "dist/router.d.ts",
   "author": {
     "name": "bynaki",
     "email": "bynaki@icloud.com"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/bynaki/ts-webapi.boilerplate.git"
+    "url": "https://github.com/bynaki/koa-decorouter.git"
   },
   "license": "MIT",
   "scripts": {
-    "start": "node .",
-    "dev": "npm run build && npm start",
     "build": "tsc && bin/copy \"src/**/!(*.ts)\" \"dist\"",
-    "build.parcel": "parcel build --target=node src/app.ts && bin/copy \"src/**/!(*.ts)\" \"dist\"",
     "clean": "rimraf dist",
-    "archive": "tar cvfz archive.tar.gz dist/ package.json",
-    "release": "npm run clean && npm run build.parcel && npm run archive && bin/release",
     "build.util": "tsc --outDir utils utils/index.ts",
     "build.test": "tsc -p tsconfig.test.json && bin/copy \"src/**/!(*.ts)\" \"dist.test/src\"",
     "test": "npm run build.test && ava",
     "test.watch": "npm run build.test && ava --watch",
-    "clean.test": "rimraf dist.test",
-    "fetch": "curl -o archive.tar.gz \"$RELEASE_URL\" && tar xvfz archive.tar.gz"
+    "clean.test": "rimraf dist.test"
   },
   "devDependencies": {
     "@types/fs-extra": "^5.0.1",
     "@types/glob": "^5.0.35",
+    "@types/jsonwebtoken": "^7.2.6",
     "@types/koa": "^2.0.44",
+    "@types/koa-bodyparser": "^4.2.0",
     "@types/koa-router": "^7.0.27",
     "ava": "^0.25.0",
     "axios": "^0.18.0",
     "fourdollar.promisify": "^1.0.5",
     "fs-extra": "^5.0.0",
+    "jsonwebtoken": "^8.2.0",
     "glob": "^7.1.2",
+    "koa": "^2.5.0",
+    "koa-bodyparser": "^4.2.0",
     "parcel-bundler": "^1.6.2",
     "rimraf": "^2.6.2",
     "typescript": "^2.7.2"
   },
   "dependencies": {
-    "fourdollar.filewriter": "^1.0.0",
-    "fourdollar.logger": "^1.0.3",
-    "jsonwebtoken": "^8.2.0",
-    "koa": "^2.5.0",
     "koa-router": "^7.4.0"
   },
   "ava": {

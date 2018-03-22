@@ -2,9 +2,6 @@
  * Router using Decorator
  */
 
-import {
-  ErrorUnauthorized,
-} from './errors'
 import * as KoaRouter from 'koa-router'
 import {
   IRouterContext,
@@ -53,12 +50,6 @@ export class BaseRouter {
         .concat(this[e.middleware].bind(this))
       this.router[e.method](e.path, ...middlewares)
     })
-    // if(this['routerItemList']) {
-    //   let list: IEndpointInfo[] = this['routerItemList']
-    //   list.forEach(item => {
-    //     this.router[item.method](item.path, this[item.middleware].bind(this))
-    //   })
-    // }
   }
 
   get router() {
@@ -80,26 +71,12 @@ export function BeforeEachWith(middleware: IMiddleware) {
   }
 }
 
-// export function AfterEachWith(middleware: IMiddleware) {
-//   return (target: any) => {
-//     target.prototype._afterEachs || (target.prototype._afterEachs = [])
-//     target.prototype._afterEachs.push(middleware)
-//   }
-// }
-
 export function BeforeEach() {
   return (target: any, name: string, descriptor: PropertyDescriptor) => {
     target._beforeEachs || (target._beforeEachs = [])
     target._beforeEachs.push(name)
   }
 }
-
-// export function AfterEach() {
-//   return (target: any, name: string, descriptor: PropertyDescriptor) => {
-//     target._afterEachs || (target._afterEachs = [])
-//     target._afterEachs.push(name)
-//   }
-// }
 
 export function Before(middleware: IMiddleware|string) {
   return (target: any, name: string, descriptor: PropertyDescriptor) => {
@@ -109,16 +86,7 @@ export function Before(middleware: IMiddleware|string) {
   }
 }
 
-// export function After(middleware: IMiddleware|string) {
-//   return (target: any, name: string, descriptor: PropertyDescriptor) => {
-//     target._afters || (target._afters = {})
-//     target._afters[name] || (target._afters[name] = [])
-//     target._afters[name].push(middleware)
-//   }
-// }
-
-function Method(method: string
-  , path: string|RegExp, withAuth: boolean = false) {
+function Method(method: string, path: string|RegExp) {
   return (target: any, name: string, descriptor: PropertyDescriptor) => {
     if(!target._endpoints) {
       target._endpoints = []
@@ -160,30 +128,6 @@ export function Patch(path: string|RegExp) {
   return Method('patch', path)
 }
 
-export function AllAuth(path: string|RegExp) {
-  return Method('all', path, true)
-}
-
-export function GetAuth(path: string|RegExp) {
-  return Method('get', path, true)
-}
-
-export function PostAuth(path: string|RegExp) {
-  return Method('post', path, true)
-}
-
-export function PutAuth(path: string|RegExp) {
-  return Method('put', path, true)
-}
-
-export function DeleteAuth(path: string|RegExp) {
-  return Method('del', path, true)
-}
-
-export function HeadAuth(path: string|RegExp) {
-  return Method('head', path, true)
-}
-
-export function PatchAuth(path: string|RegExp) {
-  return Method('patch', path, true)
+export function Options(path: string|RegExp) {
+  return Method('options', path)
 }

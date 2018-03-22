@@ -1,21 +1,10 @@
 import * as Koa from 'koa'
-import {
-  responseTime,
-  responseLogger,
-  authentication,
-} from './middlewares'
-import {
-  ErrorWithStatusCode,
-  ErrorNotFound,
-} from './errors'
-import {
-  logger,
-} from './log'
-import cf from './config'
+import * as bodyParser from 'koa-bodyparser'
 
-import errorRouter from './routers/error-router'
-import heroRouter from './routers/hero-router'
-import routeRouter from './routers/route-router'
+import methodRouter from './routers/method-router'
+import paramRouter from './routers/param-router'
+import beforeRouter from './routers/before-router'
+import authRouter from './routers/auth-router'
 
 const app = new Koa()
 
@@ -23,45 +12,37 @@ const app = new Koa()
 app.use(async (ctx, next) => {
   try {
     await next()
-  } catch(e) {
-    const err: ErrorWithStatusCode = e
-    ctx.status = err.statusCode || 500
-    ctx.type = 'json'
+  } catch(err) {
+    ctx.status = err.status || 500
     ctx.body = {
-      errorMessage: err.message,
-      errorName: err.name,
-      errorStack: err.stack,
+      data: null,
+      error: err,
     }
     ctx.app.emit('error', err, ctx)
   }
 })
 
-// x-response-time
-app.use(responseTime())
-
-// logger
-app.use(responseLogger('Response'))
-
-// authentication
-app.use(authentication(cf.jwt))
+// body parser
+app.use(bodyParser())
 
 // register routers
-// app.use(errorRouter.routes())
-// app.use(errorRouter.allowedMethods())
-// app.use(heroRouter.routes())
-// app.use(heroRouter.allowedMethods())
-app.use(routeRouter.routes())
-app.use(routeRouter.allowedMethods())
+app.use(methodRouter.routes())
+app.use(methodRouter.allowedMethods())
+app.use(paramRouter.routes())
+app.use(paramRouter.allowedMethods())
+app.use(beforeRouter.routes())
+app.use(beforeRouter.allowedMethods())
+app.use(authRouter.routes())
+app.use(authRouter.allowedMethods())
 
 // not found
 app.use(ctx => {
-  throw new ErrorNotFound(`requested ${ctx.method} ${ctx.url}`)
+  ctx.throw(404, `requested ${ctx.method} ${ctx.url}`)
 })
-
-export default app
 
 // error handler
 app.on('error', err => {
-  logger.log(`sent error "${err.message}" to the client`)
-  logger.error(err)
+  console.error(err.message)
 })
+
+export default app

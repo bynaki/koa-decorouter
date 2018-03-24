@@ -52,9 +52,11 @@ test('@Before, @BeforEach must be orderly', async t => {
 
 test('Authorized', async t => {
   try {
-    const res = await req.get('/auth', {headers: {
-      'x-access-token': 'naki'
-    }})
+    const res = await req.get('/auth/naki', {
+      headers: {
+        'x-access-token': 'naki',
+      },
+    })
     t.is(res.data.data, 'Authorized!!')
   } catch(err) {
     t.fail(err.message)
@@ -62,7 +64,11 @@ test('Authorized', async t => {
 })
 
 test('Unauthorized', async t => {
-  const err: AxiosError = await t.throws(req.get('/auth'))
+  const err: AxiosError = await t.throws(req.get('/auth/naki', {
+    headers: {
+      'x-access-token': 'foobar',
+    },
+  }))
   t.is(err.message, 'Request failed with status code 401')
   t.is(err.response.data.error.message, 'Unauthorized')
 })

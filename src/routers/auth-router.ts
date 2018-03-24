@@ -14,9 +14,9 @@ import {
 } from '../router'
 
 
-function authentication(user: string) {
+function authentication() {
   return (ctx: IContext, next: INext) => {
-    if(ctx.headers['x-access-token'] !== user) {
+    if(ctx.headers['x-access-token'] !== ctx.params.user) {
       ctx.throw(401, 'Unauthorized')
     }
     next()
@@ -25,8 +25,8 @@ function authentication(user: string) {
 
 @Prefix('/auth')
 class AuthRouter extends BaseRouter {
-  @Before(authentication('naki'))
-  @Get('/')
+  @Before(authentication())
+  @Get('/:user')
   auth(ctx: IContext, next: INext) {
     ctx.body = {data: 'Authorized!!'}
   }
